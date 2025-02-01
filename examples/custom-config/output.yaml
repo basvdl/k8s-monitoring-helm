@@ -46,11 +46,12 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: k8smon-opencost
+  namespace: default
   labels:
-    helm.sh/chart: opencost-1.22.3
+    helm.sh/chart: opencost-1.43.2
     app.kubernetes.io/name: opencost
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.106.4"
+    app.kubernetes.io/version: "1.113.0"
     app.kubernetes.io/part-of: opencost
     app.kubernetes.io/managed-by: Helm
 automountServiceAccountToken: true
@@ -42896,10 +42897,10 @@ kind: ClusterRole
 metadata:
   name: k8smon-opencost
   labels:
-    helm.sh/chart: opencost-1.22.3
+    helm.sh/chart: opencost-1.43.2
     app.kubernetes.io/name: opencost
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.106.4"
+    app.kubernetes.io/version: "1.113.0"
     app.kubernetes.io/part-of: opencost
     app.kubernetes.io/managed-by: Helm
 rules:
@@ -43045,10 +43046,10 @@ kind: ClusterRoleBinding
 metadata:
   name: k8smon-opencost
   labels:
-    helm.sh/chart: opencost-1.22.3
+    helm.sh/chart: opencost-1.43.2
     app.kubernetes.io/name: opencost
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.106.4"
+    app.kubernetes.io/version: "1.113.0"
     app.kubernetes.io/part-of: opencost
     app.kubernetes.io/managed-by: Helm
 roleRef:
@@ -43169,18 +43170,19 @@ apiVersion: v1
 kind: Service
 metadata:
   name: k8smon-opencost
+  namespace: default
   labels:
-    helm.sh/chart: opencost-1.22.3
+    helm.sh/chart: opencost-1.43.2
     app.kubernetes.io/name: opencost
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.106.4"
+    app.kubernetes.io/version: "1.113.0"
     app.kubernetes.io/part-of: opencost
     app.kubernetes.io/managed-by: Helm
 spec:
   selector:
     app.kubernetes.io/name: opencost
     app.kubernetes.io/instance: k8smon
-  type: ClusterIP
+  type: "ClusterIP"
   ports:
     - name: http
       port: 9003
@@ -43490,11 +43492,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: k8smon-opencost
+  namespace: default
   labels:
-    helm.sh/chart: opencost-1.22.3
+    helm.sh/chart: opencost-1.43.2
     app.kubernetes.io/name: opencost
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.106.4"
+    app.kubernetes.io/version: "1.113.0"
     app.kubernetes.io/part-of: opencost
     app.kubernetes.io/managed-by: Helm
 spec:
@@ -43519,7 +43522,7 @@ spec:
         kubernetes.io/os: linux
       containers:
         - name: k8smon-opencost
-          image: "quay.io/kubecost1/kubecost-cost-model:prod-1.106.4"
+          image: ghcr.io/opencost/opencost:1.113.0@sha256:b313d6d320058bbd3841a948fb636182f49b46df2368d91e2ae046ed03c0f83c
           imagePullPolicy: IfNotPresent
           args:
           ports:
@@ -43532,36 +43535,52 @@ spec:
             requests:
               cpu: 10m
               memory: 55Mi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /healthz
               port: 9003
-            initialDelaySeconds: 120
-            periodSeconds: 10
+            initialDelaySeconds: 10
+            periodSeconds: 20
             failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /healthz
               port: 9003
-            initialDelaySeconds: 120
+            initialDelaySeconds: 10
             periodSeconds: 10
             failureThreshold: 3
           env:
+            - name: LOG_LEVEL
+              value: info
+            - name: CUSTOM_COST_ENABLED
+              value: "false"
+            - name: KUBECOST_NAMESPACE
+              value: default
+            - name: API_PORT
+              value: "9003"
             - name: PROMETHEUS_SERVER_ENDPOINT
               value: "https://prom.example.com/api/prom"
             - name: CLUSTER_ID
               value: "default-cluster"
-            # If username, password or bearer_token are defined, pull from secrets
-            - name: DB_BASIC_AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: prometheus-k8s-monitoring
-                  key: username
-            - name: DB_BASIC_AUTH_PW
-              valueFrom:
-                secretKeyRef:
-                  name: prometheus-k8s-monitoring
-                  key: password
+            - name: DATA_RETENTION_DAILY_RESOLUTION_DAYS
+              value: "15"
+            - name: CLOUD_COST_ENABLED
+              value: "false"
+            - name: CLOUD_COST_MONTH_TO_DATE_INTERVAL
+              value: "6"
+            - name: CLOUD_COST_REFRESH_RATE_HOURS
+              value: "6"
+            - name: CLOUD_COST_QUERY_WINDOW_DAYS
+              value: "7"
+            - name: CLOUD_COST_RUN_WINDOW_DAYS
+              value: "3"
             # Add any additional provided variables
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyD29bGxmHAVEOBYtgd8sYM2gM2ekfxQX4U"
