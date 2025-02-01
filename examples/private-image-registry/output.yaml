@@ -63,13 +63,14 @@ metadata:
   name: k8smon-prometheus-node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.24.0
+    helm.sh/chart: prometheus-node-exporter-4.43.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.2"
+automountServiceAccountToken: false
 imagePullSecrets:  
   - name: my-registry-creds
 ---
@@ -43135,13 +43136,13 @@ metadata:
   name: k8smon-prometheus-node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.24.0
+    helm.sh/chart: prometheus-node-exporter-4.43.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.2"
   annotations:
     prometheus.io/scrape: "true"
 spec:
@@ -43249,13 +43250,13 @@ metadata:
   name: k8smon-prometheus-node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.24.0
+    helm.sh/chart: prometheus-node-exporter-4.43.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.8.2"
 spec:
   selector:
     matchLabels:
@@ -43271,13 +43272,13 @@ spec:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
       labels:
-        helm.sh/chart: prometheus-node-exporter-4.24.0
+        helm.sh/chart: prometheus-node-exporter-4.43.1
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
         app.kubernetes.io/part-of: prometheus-node-exporter
         app.kubernetes.io/name: prometheus-node-exporter
         app.kubernetes.io/instance: k8smon
-        app.kubernetes.io/version: "1.7.0"
+        app.kubernetes.io/version: "1.8.2"
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -43288,7 +43289,7 @@ spec:
       serviceAccountName: k8smon-prometheus-node-exporter
       containers:
         - name: node-exporter
-          image: my.registry.com/prometheus/node-exporter:v1.7.0
+          image: my.registry.com/prometheus/node-exporter:v1.8.2
           imagePullPolicy: IfNotPresent
           args:
             - --path.procfs=/host/proc
@@ -43342,6 +43343,20 @@ spec:
         - name: my-registry-creds
       hostNetwork: true
       hostPID: true
+      hostIPC: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/compute-type
+                operator: NotIn
+                values:
+                - fargate
+              - key: type
+                operator: NotIn
+                values:
+                - virtual-kubelet
       nodeSelector:
         kubernetes.io/os: linux
       tolerations:
