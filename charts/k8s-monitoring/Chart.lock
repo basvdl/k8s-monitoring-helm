@@ -1,10 +1,10 @@
 dependencies:
 - name: grafana-agent
   repository: https://grafana.github.io/helm-charts
-  version: 0.28.0
+  version: 0.42.0
 - name: grafana-agent
   repository: https://grafana.github.io/helm-charts
-  version: 0.28.0
+  version: 0.42.0
 - name: kube-state-metrics
   repository: https://prometheus-community.github.io/helm-charts
   version: 5.15.2
@@ -20,5 +20,5 @@ dependencies:
 - name: opencost
   repository: https://opencost.github.io/opencost-helm-chart
   version: 1.22.3
-digest: sha256:774a3638cffcb2a1fe9dcf5623943640890968bb984eef977eed9b01082faae3
-generated: "2023-11-21T13:12:49.421082-06:00"
+digest: sha256:b3c8180aedd7b5c5f722445b1326343e124f0c0d90806c6577983b0b19a3960b
+generated: "2025-02-01T01:11:34.880130056Z"
