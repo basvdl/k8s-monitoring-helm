@@ -13,12 +13,12 @@ dependencies:
   version: 4.24.0
 - name: prometheus-operator-crds
   repository: https://prometheus-community.github.io/helm-charts
-  version: 7.0.0
+  version: 17.0.2
 - name: prometheus-windows-exporter
   repository: https://prometheus-community.github.io/helm-charts
   version: 0.1.2
 - name: opencost
   repository: https://opencost.github.io/opencost-helm-chart
   version: 1.22.3
-digest: sha256:774a3638cffcb2a1fe9dcf5623943640890968bb984eef977eed9b01082faae3
-generated: "2023-11-21T13:12:49.421082-06:00"
+digest: sha256:374a2cba4b0092fcf46be09d8087df9b6d1545e84708c594b2cb337d87bf2c67
+generated: "2025-02-01T01:11:24.633202233Z"
