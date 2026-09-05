@@ -62,13 +62,14 @@ metadata:
   name: k8smon-prometheus-node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.24.0
+    helm.sh/chart: prometheus-node-exporter-4.56.3
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.12.1"
+automountServiceAccountToken: false
 ---
 # Source: k8s-monitoring/charts/prometheus-windows-exporter/templates/serviceaccount.yaml
 apiVersion: v1
@@ -43237,13 +43238,13 @@ metadata:
   name: k8smon-prometheus-node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.24.0
+    helm.sh/chart: prometheus-node-exporter-4.56.3
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.12.1"
   annotations:
     prometheus.io/scrape: "true"
 spec:
@@ -43377,13 +43378,13 @@ metadata:
   name: k8smon-prometheus-node-exporter
   namespace: default
   labels:
-    helm.sh/chart: prometheus-node-exporter-4.24.0
+    helm.sh/chart: prometheus-node-exporter-4.56.3
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: metrics
     app.kubernetes.io/part-of: prometheus-node-exporter
     app.kubernetes.io/name: prometheus-node-exporter
     app.kubernetes.io/instance: k8smon
-    app.kubernetes.io/version: "1.7.0"
+    app.kubernetes.io/version: "1.12.1"
 spec:
   selector:
     matchLabels:
@@ -43399,13 +43400,13 @@ spec:
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
       labels:
-        helm.sh/chart: prometheus-node-exporter-4.24.0
+        helm.sh/chart: prometheus-node-exporter-4.56.3
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: metrics
         app.kubernetes.io/part-of: prometheus-node-exporter
         app.kubernetes.io/name: prometheus-node-exporter
         app.kubernetes.io/instance: k8smon
-        app.kubernetes.io/version: "1.7.0"
+        app.kubernetes.io/version: "1.12.1"
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -43416,7 +43417,7 @@ spec:
       serviceAccountName: k8smon-prometheus-node-exporter
       containers:
         - name: node-exporter
-          image: quay.io/prometheus/node-exporter:v1.7.0
+          image: quay.io/prometheus/node-exporter:v1.12.1
           imagePullPolicy: IfNotPresent
           args:
             - --path.procfs=/host/proc
@@ -43424,6 +43425,8 @@ spec:
             - --path.rootfs=/host/root
             - --path.udev.data=/host/root/run/udev/data
             - --web.listen-address=[$(HOST_IP)]:9100
+            - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run/containerd/.+|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+            - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs|erofs)$
           securityContext:
             readOnlyRootFilesystem: true
           env:
@@ -43438,7 +43441,7 @@ spec:
             httpGet:
               httpHeaders:
               path: /
-              port: 9100
+              port: metrics
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 10
@@ -43449,7 +43452,7 @@ spec:
             httpGet:
               httpHeaders:
               path: /
-              port: 9100
+              port: metrics
               scheme: HTTP
             initialDelaySeconds: 0
             periodSeconds: 10
@@ -43468,6 +43471,20 @@ spec:
               readOnly: true
       hostNetwork: true
       hostPID: true
+      hostIPC: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/compute-type
+                operator: NotIn
+                values:
+                - fargate
+              - key: type
+                operator: NotIn
+                values:
+                - virtual-kubelet
       nodeSelector:
         kubernetes.io/os: linux
       tolerations:
